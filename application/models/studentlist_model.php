@@ -15,8 +15,7 @@
 		}
         
         public function insert($row)
-        {
-            
+        {    
             $this->db->insert('student',$row);
             return $this->db->insert_id(); 
         }
@@ -24,7 +23,7 @@
         public function getLabId()
         {
             $lab_Id1 = 0;
-            $cho_lab_count = 25;
+            $cho_lab_count = 7;
             $flag = true;
             
             $query1 = $this->db->query('select lab.lab_id id,COUNT(*) count 
@@ -201,7 +200,8 @@
                                         st.st_enter_time Enter,st.st_leave_time Finish,lab.lab_name Lab
                                         from student st inner join lab
                                         on st.lab_id = lab.lab_id
-                                        where !isnull(st.st_leave_time);');
+                                        where !isnull(st.st_leave_time)
+                                        ;');
                                         
             if($query->num_rows() > 0)
             {
@@ -213,6 +213,39 @@
             }
             
         } 
+        
+        function existStudent($already_exist)
+        {
+            $need_student = 0;
+            
+            $maxNumber = $this->db->query('select SUM(lab.lab_max_voloum) max 
+                                           from lab;');
+            
+            $exist_student = $this->db->query('select count(*) exist 
+                                               from student st
+                                               where isnull(st.st_leave_time);');
+                                               
+            foreach($exist_student->result_array() as $exist)
+            {
+                if($exist['exist'] != $already_exist)
+                {
+                   foreach($maxNumber->result_array() as $max)
+                   {
+                     if($exist['exist'] <= $max['max'])
+                     {
+                        $need_student = $max['max'] - $row['exist'];
+                     }
+                   }
+                }
+                
+                else
+                {
+                    sleep(60);
+                }
+            }
+            
+            return $need_student;
+        }
 
 	}
     
