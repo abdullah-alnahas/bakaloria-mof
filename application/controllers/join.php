@@ -2,6 +2,7 @@
 class Join extends CI_Controller {
 
     //public $cho_lab_id = 0;
+    public static $counter = 1 ;
     
     public function __construct()
     {
@@ -14,6 +15,8 @@ class Join extends CI_Controller {
         $this->load->helper('date');
 		
 		$this->load->helper('form');
+        
+        
     }
     
 	public function index()
@@ -155,6 +158,36 @@ class Join extends CI_Controller {
         }
     }
     
+    
+   	function _get_still_inside_students()
+       {
+ 		    $result = $this->studentlist_model->getAllStudent();
+ 			$data['records'] = $result;
+ 			$this->load->view('join/view',$data);
+   	   }
+       
+    function neededStudent()
+    {
+        
+        $need = $this->studentlist_model->existStudent($this->input->get('already_exist'));
+        
+        echo $need;
+    }
+    
+    function moveCounter()
+    {
+        if(join::$counter < 100)
+        {
+            join::$counter++;
+        }
+        else
+        {
+            join::$counter = 1;
+        }
+        
+        echo join::$counter;
+    }
+    
         public function arab_alpha($str)
         {
             
@@ -162,11 +195,7 @@ class Join extends CI_Controller {
             //return ( ! preg_match("/^([a-z])+$/i", $str)) ? FALSE : TRUE;
         }
 		
-		function _get_still_inside_students(){
-		    $result= $this->studentlist_model->getAllStudent();
-			$data['records'] = $result;
-			$this->load->view('join/view',$data);
-		}
+	
 		
 		
 }
