@@ -95,14 +95,14 @@ class Join extends CI_Controller {
     function update()
     {
     	$id = $_GET['id'];
-        if($this->studentlist_model->updateStudent($id)==true)
+        if($this->studentlist_model->updateStudent($id)===true)
         {
             echo "Updated Successfully";
         }
-        else if($this->studentlist_model->updateStudent($id)=='no affected rows')
+        else if($this->studentlist_model->updateStudent($id)==='no affected rows')
         {
             echo "no affected rows";
-        }else if($this->studentlist_model->updateStudent($id)==false)
+        }else if($this->studentlist_model->updateStudent($id)===false)
         {
             echo "error";
         }

@@ -71,7 +71,7 @@
 						$('#'+row_id).remove();													
 					}else if(data=='no affected rows'){
 						alert('تم تسجيل زمن خروج الطالب مٌسبقاً، يُرجى إعادة تحميل الصفحة');
-						$('#'+st_id).replaceWith('<button class="btn btn-default " id="'+st_id+'" onclick="loading_gif('+st_id+');return true;">انتهى</button>');
+						$('#'+row_id).remove();
 					}
 				}).fail(function() {
 					alert('تأكد من اتصالك بالخادم..');
@@ -182,9 +182,42 @@
 						  
 					</div>
 				</div>
+				<div class="panel panel-primary col-lg-8 col-lg-offset-2">
+					<!--<div class="panel-heading">Panel heading without title</div>-->
+					<div class="panel-body">
+						<div class="row">
+							<div class="col-lg-4"></div>
+							<div class="col-lg-4">
+								<center>
+									<span class="badge" style="background-color:#428bca; "><font face="" size="3" color="white">عدد الأماكن المتبقية</font></span>
+									<span class="badge" id="blank">8</span>
+									<span>من أصل</span>
+									<span class="badge" id="total">14</span>
+								</center>
+							</div>
+							<div class="col-lg-4"></div>
+						</div><br />
+						<div class="row">
+							<div class="col-lg-3"></div>
+							<div class="col-lg-6">
+								<div class="progress">
+									<div class="progress-bar" style="width: 80%" id="p-blank">
+										<span class="sr-only">80%</span>
+									</div>
+									<div class="progress-bar progress-bar-warning" id="p-filled" style="width: 20%">
+										<span class="sr-only">20%</span>
+									</div>
+								</div>
+							</div>
+							<div class="col-lg-3">
+							
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 			<div class="tab-pane fade in" id="inside">
-				<!-- -->
+				<!-- jumbotron -->
 				<div class="row">
 					<div class="col-lg-offset-3 col-lg-6 "><!-- table container-->
 						<table class="table table-bordered table-hover">
