@@ -16,8 +16,22 @@
         
         public function insert($row)
         {    
-            $this->db->insert('student',$row);
-            return $this->db->insert_id(); 
+            $this->db->where('st_fname',$row['st_fname']);
+            $this->db->where('st_lname',$row['st_flname']);
+            $this->db->where('st_phone',$row['st_phone']);
+            $this->db->where('st_faname',$row['st_faname']);
+            $this->db->where('st_mname',$row['st_mname']);
+            
+            $query = $this->db->get('student');
+            if($query->num_rows() == 0)
+            {
+                $this->db->insert('student',$row);
+                return $this->db->insert_id();
+            }
+            else
+            {
+                return false;
+            } 
         }
         
         public function getLabId()

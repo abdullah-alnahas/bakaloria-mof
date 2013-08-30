@@ -29,27 +29,23 @@ class Join extends CI_Controller {
     public function save()
     {
         $lab_Id = 0;
-        //$cho_lab_count = 25;
-        
-        //echo var_dump($_POST);
-        
         
         $this->form_validation->set_rules('st_fname', 'First Name', 'required|callback_arab_alpha');
         $this->form_validation->set_rules('st_lname', 'Surname', 'required|callback_arab_alpha');
         $this->form_validation->set_rules('st_phone', 'Home Telephone Number', 'required|numeric');
-
+        $this->form_validation->set_rules('st_faname', 'Father Name', 'required|callback_arab_alpha');
+        $this->form_validation->set_rules('st_mname', 'Mother Name', 'required|callback_arab_alpha');
+        $this->form_validation->set_rules('st_queue_num', 'The Number In The Queue', 'required|numeric');
          
         if($this->form_validation->run() == false)
         {
             echo "input error";
-            //$this->load->view('Join/view');
         }
         else
         {
             if($lab_Id = $this->studentlist_model->getLabId())
             {
             
-            //$cho_lab_id = $lab_Id;
             
             $this->load->helper('url');
             
@@ -63,24 +59,30 @@ class Join extends CI_Controller {
                 'st_fname' => $this->input->post('st_fname'),
                 'st_lname' => $this->input->post('st_lname'),
                 'st_phone' => $this->input->post('st_phone'),
+                'st_faname' => $this->input->post('st_faname'),
+                'st_mname' => $this->input->post('st_mname'),
+                'st_queue_num' => $this->input->post('st_queue_num'),
                 'st_enter_time' => $time,
                 'lab_id' => $lab_Id ,
                 
             );
             
-            $this->studentlist_model->insert($postdata);
+            if($this->studentlist_model->insert($postdata))
+            {
              
-            $row = $this->studentlist_model->getLabName($lab_Id);
+                $row = $this->studentlist_model->getLabName($lab_Id);
                     
-               foreach ($row->result_array() as $lab_name)
-                  {
-                     echo $lab_name['lab_name'];
-                  }
+                    foreach ($row->result_array() as $lab_name)
+                    {
+                         echo $lab_name['lab_name'];
+                    }
+            }
+            
+            else
+            {
+                echo "false";
+            }
                 
-            
-            //$this->Studentlist_model->getAllStudent();
-            
-            //$this->load->view('Join/saved');
             
           }
           
