@@ -17,10 +17,11 @@
         public function insert($row)
         {    
             $this->db->where('st_fname',$row['st_fname']);
-            $this->db->where('st_lname',$row['st_flname']);
+            $this->db->where('st_lname',$row['st_lname']);
             $this->db->where('st_phone',$row['st_phone']);
             $this->db->where('st_faname',$row['st_faname']);
             $this->db->where('st_mname',$row['st_mname']);
+			$this->db->where('st_mname',$row['st_queue_num']);
             
             $query = $this->db->get('student');
             if($query->num_rows() == 0)
@@ -120,7 +121,7 @@
             {
                 
                $q = $this->db->query('
-               SELECT st.st_fname, st.st_lname, st.st_enter_time, st.st_id, lab.lab_name 
+               SELECT st.st_fname, st.st_lname, st.st_enter_time, st.st_id, st.st_faname, st.st_mname, st.st_queue_num, lab.lab_name 
                FROM student st
                inner Join lab
                on st.lab_id = lab.lab_id
@@ -257,6 +258,7 @@
                             sleep(1);
                             $sleepTime--;
                         } 
+						echo $sleepTime;
                         
                      }
                 

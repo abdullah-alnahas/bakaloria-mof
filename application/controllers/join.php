@@ -37,7 +37,7 @@ class Join extends CI_Controller {
         $this->form_validation->set_rules('st_mname', 'Mother Name', 'required|callback_arab_alpha');
         $this->form_validation->set_rules('st_queue_num', 'The Number In The Queue', 'required|numeric');
          
-        if($this->form_validation->run() == false)
+        if($this->form_validation->run() === false)
         {
             echo "input error";
         }

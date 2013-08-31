@@ -12,15 +12,24 @@
 				fname = $('#fname').val();
 				lname = $('#lname').val();
 				phone = $('#phone').val();
-				if(fname!="" && lname!="" && phone!=""){
+				faname = $('#faname').val();
+				mname = $('#mname').val();
+				queue_num = $('#queue_num').val();
+				if(fname!="" && lname!="" && phone!="" && faname!="" && mname!=""&&queue_num!=""){
 					$("#st_fname").attr('value',fname);
 					$("#st_lname").attr('value',lname);
 					$("#st_phone").attr('value',phone);
-					fname = null; lname = null;phone=null;
+					$("#st_faname").attr('value',faname);
+					$("#st_mname").attr('value',mname);
+					$("#st_queue_num").attr('value',queue_num);
+					fname = null; lname = null;phone=null;faname=null;mname=null;queue_num=null;
 						$('#confirm_info').modal('show');
 						$('#fname').val("");
 						$('#lname').val("");
 						$('#phone').val("");
+						$('#faname').val("");
+						$('#mname').val("");
+						$('#queue_num').val("");
 				} else{
 					alert("لم تقم بإدخال جميع البيانات المطلوبة");
 				}
@@ -38,7 +47,7 @@
 						if(data.length==2){
 							alert('تمّت إضافة البيانات بنجاح\n رجاء اذهب إلى القاعة: '+data);
 							$('#confirm_info').modal('hide');							
-						}else if(data=='false'){
+						}else if(data==='false'){
 							alert('عذراً.. \n جميع القاعات ممتلئة الآن، يرجى الانتظار ريثما يتاح المجال لدخولك.');
 							$('#confirm_info').modal('hide');
 						}else{
@@ -52,6 +61,23 @@
 					});
 					event.preventDefault();
 				});
+				//calculate rest places..
+				function calculateRestPlaces(){
+					
+					$.get("<?php echo site_url('join/neededStudent');?>", { already_exist: st_id } )
+					.done(function(data) {
+						if(data=='Updated Successfully'){
+							alert('تم تسجيل زمن الخروج بنجاح');
+							$('#'+row_id).remove();													
+						}else if(data=='no affected rows'){
+							alert('تم تسجيل زمن خروج الطالب مٌسبقاً، يُرجى إعادة تحميل الصفحة');
+							$('#'+row_id).remove();
+						}
+					}).fail(function() {
+						alert('تأكد من اتصالك بالخادم..');
+						$('#'+st_id).replaceWith('<button class="btn btn-default " id="'+st_id+'" onclick="loading_gif('+st_id+');return true;">انتهى</button>');
+					});
+				}
 			});
 		</script>
 		<script>
@@ -106,7 +132,9 @@
 					<div class="form-horizontal">
 						
 							<div class="form-group">
-								<div class="col-lg-7"></div>
+								<div class="col-lg-7">
+									<div class=""></div>
+								</div>
 								<div class="col-lg-3">
 									<input type="text" class="form-control" id="fname" name="fname" placeholder="اسم الطالب">
 								</div>
@@ -124,9 +152,33 @@
 							<div class="form-group ">
 								<div class="col-lg-7"></div>
 								<div class="col-lg-3">
+									<input type="text" class="form-control" id="faname" name="faname" placeholder="اسم الأب">
+								</div>
+								<label for="faname" class="col-lg-2  control-label">اسم الأب</label>
+							</div>
+							
+							<div class="form-group ">
+								<div class="col-lg-7"></div>
+								<div class="col-lg-3">
+									<input type="text" class="form-control" id="mname" name="mname" placeholder="اسم الأم">
+								</div>
+								<label for="mname" class="col-lg-2  control-label">اسم الأم</label>
+							</div>
+							
+							<div class="form-group ">
+								<div class="col-lg-7"></div>
+								<div class="col-lg-3">
 									<input type="tel" class="form-control" id="phone" name="phone" placeholder="أدخل رقم جوّال الطالب">
 								</div>
-								<label for="phone" class="col-lg-2  control-label">رقم الجوّال:</label>
+								<label for="phone" class="col-lg-2  control-label">رقم الجوّال</label>
+							</div>
+							
+							<div class="form-group ">
+								<div class="col-lg-7"></div>
+								<div class="col-lg-3">
+									<input type="tel" class="form-control" id="queue_num" name="queue_num" placeholder="رقم الطالب في الطابور">
+								</div>
+								<label for="queue_num" class="col-lg-2  control-label">رقم الدور</label>
 							</div>
 						  
 							<div class="form-group">
@@ -156,8 +208,23 @@
 														</div>
 														<div class="form-group row">
 															<div class="col-lg-5"></div>
+															<input type="text" id="st_faname" name="st_faname" class="col-lg-5" readonly>
+															<label for="st_faname "class="col-lg-2">اسم الأب:</label>
+														</div>
+														<div class="form-group row">
+															<div class="col-lg-5"></div>
+															<input type="text" id="st_mname" name="st_mname" class="col-lg-5" readonly>
+															<label for="st_mname "class="col-lg-2">اسم الأم:</label>
+														</div>
+														<div class="form-group row">
+															<div class="col-lg-5"></div>
 															<input type="text" id="st_phone" name="st_phone" class="col-lg-5" readonly>
 															<label for="st_phone" class="col-lg-2">رقم الجوّال:</label>
+														</div>
+														<div class="form-group row">
+															<div class="col-lg-5"></div>
+															<input type="text" id="st_queue_num" name="st_queue_num" class="col-lg-5" readonly>
+															<label for="st_queue_num" class="col-lg-2">رقم الدور:</label>
 														</div>
 														<!--<hr/>
 														<h3>القاعة المتوفرة:</h3>
@@ -227,6 +294,9 @@
 							<thead>
 								<tr class="panel-heading">
 									<th class="text-center">اسم الطالب</th>
+									<th class="text-center">اسم الأب</th>
+									<th class="text-center">اسم الأم</th>
+									<th class="text-center">الرقم في الدور</th>
 									<th class="text-center">المخبر</th>
 									<th class="text-center">يريد الخروج؟</th>
 								</tr>
@@ -237,6 +307,9 @@
 								?>
 										<tr id="<?php echo $tr_id = $row->st_id.'a'?>">
 											<td class="text-center" id="full-name"><?php echo $row->st_fname .' '. $row->st_lname ; ?></td>
+											<td class="text-center" id="fa-name"><?php echo $row->st_faname; ?></td>
+											<td class="text-center" id="m-name"><?php echo $row->st_mname; ?></td>
+											<td class="text-center" id="queue-num"><?php echo $row->st_queue_num; ?></td>
 											<td class="text-center" id="lab"><?php echo $row->lab_name ; ?></td>
 											<td class="text-center"><button class="btn btn-default " id="<?php echo $row->st_id?>" onclick="get_out(<?php echo $row->st_id?>);return true;">انتهى</button></td>
 										</tr>
