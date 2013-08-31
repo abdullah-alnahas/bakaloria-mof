@@ -232,6 +232,11 @@
         {
             $need_student = 0;
             
+            $sleepTime = 60;
+            
+            do
+            {
+            
             $maxNumber = $this->db->query('select SUM(lab.lab_max_voloum) max 
                                            from lab;');
             
@@ -241,22 +246,24 @@
                                                
             foreach($exist_student->result_array() as $exist)
             {
-                if($exist['exist'] != $already_exist)
-                {
-                   foreach($maxNumber->result_array() as $max)
-                   {
-                     if($exist['exist'] <= $max['max'])
+                foreach($maxNumber->result_array() as $max)
+                  {
+                    if($exist['exist'] <= $max['max'])
                      {
-                        $need_student = $max['max'] - $row['exist'];
+                        $need_student = $max['max'] - $exist['exist'];
+                        
+                        if($need_student == $already_exist)
+                        {
+                            sleep(1);
+                            $sleepTime--;
+                        } 
+                        
                      }
-                   }
-                }
                 
-                else
-                {
-                    sleep(60);
-                }
+                  }
             }
+            
+            }while(($need_student == $already_exist)&&($sleepTime != 0));
             
             return $need_student;
         }
