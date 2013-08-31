@@ -269,6 +269,36 @@
             
             return $need_student;
         }
+        
+        
+        function available_places()
+        {
+            
+            $need_student = 0;
+            
+            $maxNumber = $this->db->query('select SUM(lab.lab_max_voloum) max 
+                                           from lab;');
+            
+            $exist_student = $this->db->query('select count(*) exist 
+                                               from student st
+                                               where isnull(st.st_leave_time);');
+                                               
+            
+            foreach($exist_student->result_array() as $exist)
+            {
+                foreach($maxNumber->result_array() as $max)
+                  {
+                    if($exist['exist'] <= $max['max'])
+                     {
+                        $need_student = $max['max'] - $exist['exist'];
+                        
+                     }
+                
+                  }
+            }
+            
+            return $need_student;
+        }
 
 	}
     

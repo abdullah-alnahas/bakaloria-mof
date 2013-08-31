@@ -190,6 +190,13 @@ class Join extends CI_Controller {
         echo join::$counter;
     }
     
+    function num_available_places()
+    {
+        $available = $this->studentlist_model->available_places();
+        
+        return $available ; 
+    }
+    
         public function arab_alpha($str)
         {
             
