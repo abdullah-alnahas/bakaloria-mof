@@ -299,6 +299,15 @@
             
             return $need_student;
         }
+		function getCapacityOfLabs()
+		{
+			$maxNumber = $this->db->query('select SUM(lab.lab_max_voloum) max 
+                                           from lab;');
+			foreach($maxNumber->result_array() as $max){
+				$res = $max['max'];
+			}
+			return $res;
+		}
 
 	}
     

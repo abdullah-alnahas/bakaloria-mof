@@ -7,6 +7,61 @@
 		<link href="<?php echo base_url();?>dist/css/bootstrap.css" rel="stylesheet" media="screen">
         <script type="text/javascript" src="<?php echo base_url();?>dist/jquery.js" ></script>
         <script type="text/javascript" src="<?php echo base_url();?>dist/js/bootstrap.js" ></script>
+        <script type="text/javascript">
+        	window.onload = function(){
+        		getNumOfAvailPlaces();
+        		submit_();
+        		call_back();
+        	}
+        </script>
+        <script type="text/javascript">
+        	function call_back(){
+        		for (var i=0;i<10;)
+				{ 
+					getNumOfAvailPlaces();
+				}
+        	}
+        </script>
+        <script type="text/javascript">
+        function submit_() {
+        	$('form.form-horizontal').submit(function(event) {
+					var form = $(this);
+					$.ajax({
+						type: form.attr('method'),
+						url: form.attr('action'),
+						data: form.serialize()
+					}).done(function(data) {
+						if(data.length==2){
+							alert('تمّت إضافة البيانات بنجاح\n رجاء اذهب إلى القاعة: '+data);
+							$('#confirm_info').modal('hide');							
+						}else if(data=='false'){
+							alert('عذراً.. \n جميع القاعات ممتلئة الآن، يرجى الانتظار ريثما يتاح المجال لدخولك.');
+							$('#confirm_info').modal('hide');
+						}else{
+							alert('خطأ بالبيانات المدخلة.. يرجى التأكد من مطابقة الدخل مع الحقول');
+							$('#confirm_info').modal('hide');
+						}
+					}).fail(function() {
+						alert('تأكد من اتصالك بالخادم..');
+						
+						$('#confirm_info').modal('hide');
+					});
+					event.preventDefault();
+				});
+			}
+        </script>
+        <script type="text/javascript">
+        	function getNumOfAvailPlaces(){
+				$.getJSON("<?php echo site_url('join/num_available_places');?>", function( json ) {
+					$('#total').text(json.capacity);
+					$('#blank').text(json.available);
+					/*availPercentage = Number((json.available/json.capacity).toFixed(2)); // 6.7
+					$('#p-filled').attr("style","");
+					$('#p-filled').attr("sytle","width: "+1-availPercentage+";background-color: #999999");
+					$('#avail-places').attr("style","width: "+availPercentage);*/
+				 });
+        	}
+        </script>
 		<script type="text/javascript">		
 			function check(){
 				fname = $('#fname').val();
@@ -24,6 +79,8 @@
 					$("#st_queue_num").attr('value',queue_num);
 					fname = null; lname = null;phone=null;faname=null;mname=null;queue_num=null;
 						$('#confirm_info').modal('show');
+						//.focus();
+						$('#submit_').focus();
 						$('#fname').val("");
 						$('#lname').val("");
 						$('#phone').val("");
@@ -36,51 +93,6 @@
 			}
 		</script>
 		<script>
-			$(function() {
-				$('form.form-horizontal').submit(function(event) {
-					var form = $(this);
-					$.ajax({
-						type: form.attr('method'),
-						url: form.attr('action'),
-						data: form.serialize()
-					}).done(function(data) {
-						if(data.length==2){
-							alert('تمّت إضافة البيانات بنجاح\n رجاء اذهب إلى القاعة: '+data);
-							$('#confirm_info').modal('hide');							
-						}else if(data==='false'){
-							alert('عذراً.. \n جميع القاعات ممتلئة الآن، يرجى الانتظار ريثما يتاح المجال لدخولك.');
-							$('#confirm_info').modal('hide');
-						}else{
-							alert('خطأ بالبيانات المدخلة.. يرجى التأكد من مطابقة الدخل مع الحقول');
-							$('#confirm_info').modal('hide');
-						}
-					}).fail(function() {
-						alert('تأكد من اتصالك بالخادم..');
-						
-						$('#confirm_info').modal('hide');
-					});
-					event.preventDefault();
-				});
-				//calculate rest places..
-				function calculateRestPlaces(){
-					
-					$.get("<?php echo site_url('join/neededStudent');?>", { already_exist: st_id } )
-					.done(function(data) {
-						if(data=='Updated Successfully'){
-							alert('تم تسجيل زمن الخروج بنجاح');
-							$('#'+row_id).remove();													
-						}else if(data=='no affected rows'){
-							alert('تم تسجيل زمن خروج الطالب مٌسبقاً، يُرجى إعادة تحميل الصفحة');
-							$('#'+row_id).remove();
-						}
-					}).fail(function() {
-						alert('تأكد من اتصالك بالخادم..');
-						$('#'+st_id).replaceWith('<button class="btn btn-default " id="'+st_id+'" onclick="loading_gif('+st_id+');return true;">انتهى</button>');
-					});
-				}
-			});
-		</script>
-		<script>
 			function loading_gif(id){
 				$('#'+id).replaceWith('<center id="'+id+'"><img src="<?php echo base_url();?>assets/images/loading.gif" /></center>');
 			}
@@ -89,7 +101,6 @@
 			function get_out(st_id){
 				loading_gif(st_id)
 				row_id = st_id +'a';
-				//ajax get request
 				$.get("<?php echo base_url();?>index.php/join/update", { id: st_id } )
 				.done(function(data) {
 					if(data=='Updated Successfully'){
@@ -170,7 +181,7 @@
 								<div class="col-lg-3">
 									<input type="tel" class="form-control" id="phone" name="phone" placeholder="أدخل رقم جوّال الطالب">
 								</div>
-								<label for="phone" class="col-lg-2  control-label">رقم الجوّال</label>
+								<label for="phone" class="col-lg-2 control-label">رقم الجوّال</label>
 							</div>
 							
 							<div class="form-group ">
@@ -198,33 +209,45 @@
 													<form class="form-horizontal" id="add-form" method="post" action="<?php echo base_url() ?>index.php/join/save" >
 														<div class="form-group row">
 															<div class="col-lg-5"></div>
-															<input type="text" id="st_fname" name="st_fname" class="col-lg-5" readonly>
-															<label for="st_fname" class="col-lg-2">الاسم:</label>
+															<div  class="col-lg-5">
+																<input type="text" id="st_fname" name="st_fname" class="form-control" readonly>
+															</div>
+															<label for="st_fname" class="col-lg-2  control-label">الاسم:</label>
 														</div>
 														<div class="form-group row">
 															<div class="col-lg-5"></div>
-															<input type="text" id="st_lname" name="st_lname" class="col-lg-5" readonly>
-															<label for="st_lname "class="col-lg-2">الكنية:</label>
+															<div  class="col-lg-5">
+																<input type="text" id="st_lname" name="st_lname" class="form-control" readonly>
+															</div>
+															<label for="st_lname "class="col-lg-2 control-label">الكنية:</label>
 														</div>
 														<div class="form-group row">
 															<div class="col-lg-5"></div>
-															<input type="text" id="st_faname" name="st_faname" class="col-lg-5" readonly>
-															<label for="st_faname "class="col-lg-2">اسم الأب:</label>
+															<div  class="col-lg-5">
+																<input type="text" id="st_faname" name="st_faname" class="form-control" readonly>
+															</div>
+															<label for="st_faname "class="col-lg-2 control-label">اسم الأب:</label>
 														</div>
 														<div class="form-group row">
 															<div class="col-lg-5"></div>
-															<input type="text" id="st_mname" name="st_mname" class="col-lg-5" readonly>
-															<label for="st_mname "class="col-lg-2">اسم الأم:</label>
+															<div  class="col-lg-5">
+																<input type="text" id="st_mname" name="st_mname" class="form-control" readonly>
+															</div>
+															<label for="st_mname "class="col-lg-2 control-label">اسم الأم:</label>
 														</div>
 														<div class="form-group row">
 															<div class="col-lg-5"></div>
-															<input type="text" id="st_phone" name="st_phone" class="col-lg-5" readonly>
-															<label for="st_phone" class="col-lg-2">رقم الجوّال:</label>
+															<div  class="col-lg-5">
+																<input type="text" id="st_phone" name="st_phone" class="form-control" readonly>
+															</div>
+															<label for="st_phone" class="col-lg-2 control-label">رقم الجوّال:</label>
 														</div>
 														<div class="form-group row">
 															<div class="col-lg-5"></div>
-															<input type="text" id="st_queue_num" name="st_queue_num" class="col-lg-5" readonly>
-															<label for="st_queue_num" class="col-lg-2">رقم الدور:</label>
+															<div class="col-lg-5">
+																<input type="text" id="st_queue_num" name="st_queue_num" class="form-control" readonly>
+															</div>
+															<label for="st_queue_num" class="col-lg-2 control-label">رقم الدور:</label>
 														</div>
 														<!--<hr/>
 														<h3>القاعة المتوفرة:</h3>
@@ -237,7 +260,7 @@
 												</div>
 												<div class="modal-footer">
 													<button type="button" class="btn btn-default pull-left" data-dismiss="modal">إلغاء</button>
-													<input class="btn btn-primary pull-left" type="submit" value="تأكيد" />
+													<input class="btn btn-primary pull-left" id='submit_' type="submit" value="تأكيد" />
 												</div>
 												</form>
 												
@@ -257,21 +280,21 @@
 							<div class="col-lg-4">
 								<center>
 									<span class="badge" style="background-color:#428bca; "><font face="" size="3" color="white">عدد الأماكن المتبقية</font></span>
-									<span class="badge" id="blank">8</span>
+									<span class="badge" id="blank">0</span>
 									<span>من أصل</span>
-									<span class="badge" id="total">14</span>
+									<span class="badge" id="total">0</span>
 								</center>
 							</div>
 							<div class="col-lg-4"></div>
 						</div><br />
-						<div class="row">
+						<!--<div class="row">
 							<div class="col-lg-3"></div>
 							<div class="col-lg-6">
 								<div class="progress">
-									<div class="progress-bar" style="width: 80%" id="p-blank">
+									<div class="progress-bar " id="p-filled" style="width: 80%;background-color: #999999;">
 										<span class="sr-only">80%</span>
 									</div>
-									<div class="progress-bar progress-bar-warning" id="p-filled" style="width: 20%">
+									<div class="progress-bar" style="width: 20%" id="avail-places">
 										<span class="sr-only">20%</span>
 									</div>
 								</div>
@@ -279,7 +302,7 @@
 							<div class="col-lg-3">
 							
 							</div>
-						</div>
+						</div>-->
 					</div>
 				</div>
 			</div>

@@ -193,9 +193,17 @@ class Join extends CI_Controller {
     function num_available_places()
     {
         $available = $this->studentlist_model->available_places();
-        
-        return $available ; 
+		$cap = $this->studentlist_model->getCapacityOfLabs();
+		$this->output
+		    ->set_content_type('application/json')
+		    ->set_output(json_encode(array('capacity' => $cap,'available'=>$available)));
     }
+	
+	function capOfLabs()
+	{
+		$cap = $this->studentlist_model->getCapacityOfLabs();
+		echo $cap;
+	}
     
         public function arab_alpha($str)
         {
@@ -204,7 +212,13 @@ class Join extends CI_Controller {
             //return ( ! preg_match("/^([a-z])+$/i", $str)) ? FALSE : TRUE;
         }
 		
-	
+	function jsonTest()
+	{
+		$this->output
+    ->set_content_type('application/json')
+    ->set_output(json_encode(array('foo' => 'bar')));
+
+	}
 		
 		
 }
