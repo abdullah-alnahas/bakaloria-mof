@@ -211,15 +211,24 @@ class Join extends CI_Controller {
             return ( ! preg_match('/^([a-z ]|\p{Arabic})+$/iu', $str)) ? FALSE : TRUE;
             //return ( ! preg_match("/^([a-z])+$/i", $str)) ? FALSE : TRUE;
         }
-		
-	function jsonTest()
-	{
-		$this->output
-    ->set_content_type('application/json')
-    ->set_output(json_encode(array('foo' => 'bar')));
 
-	}
 		
+	function updateNumOfAvailPlaces()
+	{
+		$current = $this->studentlist_model->lastUpdate();
+		//echo $current."\n";
+		$last = isset($_GET['timestamp']) ? $_GET['timestamp'] : 0;
+		while( $current <= $last) {
+			usleep(10000);
+			clearstatcache();
+			$current = $this->studentlist_model->lastUpdate();//this is a bad piece of code!!
+		}
+		$available = $this->studentlist_model->available_places();
+		$timestamp = $current;
+		$this->output
+		    ->set_content_type('application/json')
+		    ->set_output(json_encode(array('available_places' => $available,'timestamp'=>$timestamp)));
+	}
 		
 }
 		

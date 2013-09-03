@@ -308,6 +308,18 @@
 			}
 			return $res;
 		}
+		
+		 function lastUpdate()
+		{
+			$current = $this->db->query('SELECT MAX(st.st_enter_time) enter, MAX(st.st_leave_time) leav
+										 FROM student st;');
+			$res = $current->result_array();
+			foreach ($res as $result) {
+				$leave = $result['leav'];
+				$enter = $result['enter'];
+			}
+			return $enter>$leave?$enter:$leave;
+		}
 
 	}
     

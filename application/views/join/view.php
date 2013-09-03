@@ -5,21 +5,14 @@
 		<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
 		<link href="<?php echo base_url();?>dist/modifications.css" rel="stylesheet" media="screen">
 		<link href="<?php echo base_url();?>dist/css/bootstrap.css" rel="stylesheet" media="screen">
-        <script type="text/javascript" src="<?php echo base_url();?>dist/jquery.js" ></script>
+        <script type="text/javascript" src="<?php echo base_url();?>dist/jquery-1.10.2.js" ></script>
         <script type="text/javascript" src="<?php echo base_url();?>dist/js/bootstrap.js" ></script>
         <script type="text/javascript">
         	window.onload = function(){
         		getNumOfAvailPlaces();
         		submit_();
-        		call_back();
-        	}
-        </script>
-        <script type="text/javascript">
-        	function call_back(){
-        		for (var i=0;i<10;)
-				{ 
-					getNumOfAvailPlaces();
-				}
+        		//comet();
+        		setInterval(comet, 1000);
         	}
         </script>
         <script type="text/javascript">
@@ -116,6 +109,21 @@
 				});
 				
 				
+			}
+		</script>
+		<script type="text/javascript">
+			var _timestamp = null;
+			function comet() {
+				$.getJSON("<?php echo site_url('join/updateNumOfAvailPlaces');?>",{timestamp:_timestamp})
+				.done( function(json) {
+					$('#blank').text(json.available_places);
+					_timestamp  = json.timestamp;
+					//alert('comet succes'+ _timestamp);
+				})
+				.fail(function( jqxhr, textStatus, error ) {
+				  var err = textStatus + ', ' + error;
+				  console.log( "Request Failed: " + err);
+				});
 			}
 		</script>
 		<!--<script type="text/javascript">
