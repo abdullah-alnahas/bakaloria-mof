@@ -24,10 +24,10 @@
 						url: form.attr('action'),
 						data: form.serialize()
 					}).done(function(data) {
-						if(data.length==2){
+						if(data.length<=6){
 							alert('تمّت إضافة البيانات بنجاح\n رجاء اذهب إلى القاعة: '+data);
 							$('#confirm_info').modal('hide');							
-						}else if(data=='false'){
+						}else if(data=='false!!'){
 							alert('عذراً.. \n جميع القاعات ممتلئة الآن، يرجى الانتظار ريثما يتاح المجال لدخولك.');
 							$('#confirm_info').modal('hide');
 						}else{
@@ -91,10 +91,10 @@
 			}
 		</script>
 		<script type="text/javascript">
-			function get_out(st_id){
+			function get_out(st_id,pc_id){
 				loading_gif(st_id)
 				row_id = st_id +'a';
-				$.get("<?php echo base_url();?>index.php/join/update", { id: st_id } )
+				$.get("<?php echo base_url();?>index.php/join/update", { id: st_id ,p_id: pc_id} )
 				.done(function(data) {
 					if(data=='Updated Successfully'){
 						alert('تم تسجيل زمن الخروج بنجاح');
@@ -342,7 +342,7 @@
 											<td class="text-center" id="m-name"><?php echo $row->st_mname; ?></td>
 											<td class="text-center" id="queue-num"><?php echo $row->st_queue_num; ?></td>
 											<td class="text-center" id="lab"><?php echo $row->lab_name ; ?></td>
-											<td class="text-center"><button class="btn btn-default " id="<?php echo $row->st_id?>" onclick="get_out(<?php echo $row->st_id?>);return true;">انتهى</button></td>
+											<td class="text-center"><button class="btn btn-default " id="<?php echo $row->st_id?>" onclick="get_out(<?php echo $row->st_id?>,<?php echo $row->pc_id?>);return true;">انتهى</button></td>
 										</tr>
 									<?php } ?>
 								

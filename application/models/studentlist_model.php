@@ -18,10 +18,8 @@
         {    
             $this->db->where('st_fname',$row['st_fname']);
             $this->db->where('st_lname',$row['st_lname']);
-            $this->db->where('st_phone',$row['st_phone']);
             $this->db->where('st_faname',$row['st_faname']);
             $this->db->where('st_mname',$row['st_mname']);
-			$this->db->where('st_mname',$row['st_queue_num']);
             
             $query = $this->db->get('student');
             if($query->num_rows() == 0)
@@ -38,7 +36,7 @@
         public function getLabId()
         {
             $lab_Id1 = 0;
-            $cho_lab_count = 7;
+            $cho_lab_count = 15;
             $flag = true;
             
             $query1 = $this->db->query('select lab.lab_id id,COUNT(*) count 
@@ -88,32 +86,176 @@
             }
             else
             {
-              foreach ($query1->result_array() as $row){
+              //foreach ($query1->result_array() as $row){
+//                
+//    
+//                    //$nrow = $query1->next_row('array');
+//                    
+//                    
+//                    if($cho_lab_count > $row['count'])
+//                       { 
+//                         $cho_lab_count = $row['count'];
+//                         $lab_Id1 = $row['id'];
+//                         
+//                       }
+//                }
+//                if($cho_lab_count <= 30){
+//                    
+//                    //echo $cho_lab_count;
+//                    return $lab_Id1;
+//                
+//                }
+//                
+//                else
+//                {
+//                    return false;
+//                }
+
+
+                $row = $query1->row_array();
+                $nrow = $query1->next_row('array');
                 
-    
-                    //$nrow = $query1->next_row('array');
+                if($row['count'] < $nrow['count'])
+                {
+                    $q = $this->db->query('select pc.lab_id lab 
+                                           from pc 
+                                           where pc.lab_id = '.$row['id'].' and pc.pc_availability = 1 and pc.pc_is_working = 1;');
+                    if($q->num_rows() > 0)
+                    {
+                        $lab_Id1 = $row['id'];
+                    }
+                    else
+                    {
+                        $q = $this->db->query('select pc.lab_id lab 
+                                               from pc 
+                                               where pc.lab_id = '.$nrow['id'].' and pc.pc_availability = 1 and pc.pc_is_working = 1;');
+                        
+                        if($q->num_rows() > 0)
+                        {
+                            $lab_Id1 = $nrow['id'];
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
                     
                     
-                    if($cho_lab_count > $row['count'])
-                       { 
-                         $cho_lab_count = $row['count'];
-                         $lab_Id1 = $row['id'];
-                         
-                       }
                 }
-                if($cho_lab_count <= 25){
+                elseif($row['count'] == $nrow['count'])
+                {
                     
-                    //echo $cho_lab_count;
-                    return $lab_Id1;
-                
+                    $q = $this->db->query('select pc.lab_id lab 
+                                           from pc 
+                                           where pc.pc_availability = 1 and pc.pc_is_working = 1
+                                           LIMIT 1;');
+                                           
+                    $res = $q->row_array();
+                    
+                    $lab_Id1 = $res['lab'];
                 }
                 
                 else
                 {
-                    return false;
+                    $q = $this->db->query('select pc.lab_id lab 
+                                           from pc 
+                                           where pc.lab_id = '.$nrow['id'].' and pc.pc_availability = 1 and pc.pc_is_working = 1;');
+                    if($q->num_rows() > 0)
+                    {
+                        $lab_Id1 = $nrow['id'];
+                    }
+                    else
+                    {
+                        $q = $this->db->query('select pc.lab_id lab 
+                                               from pc 
+                                               where pc.lab_id = '.$row['id'].' and pc.pc_availability = 1 and pc.pc_is_working = 1;');
+                        
+                        if($q->num_rows() > 0)
+                        {
+                            $lab_Id1 = $row['id'];
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
                 }
                 
            }
+           return $lab_Id1;
+        }
+        
+        public function getPcId($id)
+        {
+            $pc_id = 0 ;
+            
+            $query = $this->db->query('select pc.pc_id id
+                                       from pc 
+                                       where pc.lab_id ='.$id.' and pc.pc_availability = 1 and pc.pc_is_working = 1
+                                       LIMIT 1;');   
+                              
+            if($query->num_rows() > 0)
+            {
+                foreach($query->result_array() as $raw)
+                {
+                    $pc_id = $raw['id'];
+                }
+                
+                return $pc_id;
+            } 
+            else
+            {
+                return false;
+            }
+        }
+        
+        public function getPcName($id)
+        {
+            $q = $this->db->query('SELECT pc_name name
+                                      FROM pc 
+                                      WHERE pc.pc_id = '.$id.' ;');
+               
+               return $q;
+        }
+        
+        public function setPcAvailTrue($id)
+        {
+            $data = array(
+               'pc_availability' => 1,
+            );
+            
+            $this->db->where('pc_id',$id);
+			$this->db->update('pc',$data);
+        }
+        
+        public function setPcAvailFalse($id)
+        {
+            $data = array(
+               'pc_availability' => 0,
+            );
+            
+            $this->db->where('pc_id',$id);
+			$this->db->update('pc',$data);
+        }
+        
+        public function setPcWorkingTrue($id)
+        {
+            $data = array(
+               'pc_is_working' => 1,
+            );
+            
+            $this->db->where('pc_id',$id);
+			$this->db->update('pc',$data);
+        }
+        
+        public function setPcWorkingFalse($id)
+        {
+            $data = array(
+               'pc_is_working' => 0,
+            );
+            
+            $this->db->where('pc_id',$id);
+			$this->db->update('pc',$data);
         }
         
         
@@ -121,7 +263,7 @@
             {
                 
                $q = $this->db->query('
-               SELECT st.st_fname, st.st_lname, st.st_enter_time, st.st_id, st.st_faname, st.st_mname, st.st_queue_num, lab.lab_name 
+               SELECT st.st_fname, st.st_lname, st.st_enter_time, st.st_id, st.st_faname, st.st_mname, st.st_queue_num, lab.lab_name,st.pc_id 
                FROM student st
                inner Join lab
                on st.lab_id = lab.lab_id

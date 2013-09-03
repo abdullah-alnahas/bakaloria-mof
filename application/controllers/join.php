@@ -28,6 +28,8 @@ class Join extends CI_Controller {
    
     public function save()
     {
+        $pc_id = 0;
+        
         $lab_Id = 0;
         
         $this->form_validation->set_rules('st_fname', 'First Name', 'required|callback_arab_alpha');
@@ -46,59 +48,78 @@ class Join extends CI_Controller {
             if($lab_Id = $this->studentlist_model->getLabId())
             {
             
-            
-            $this->load->helper('url');
-            
-            $datestring = "%Y-%m-%d %h:%i:%s";
-            $time = time();
-
-            $time = mdate($datestring, $time);
-            
-            $postdata = array(
-                
-                'st_fname' => $this->input->post('st_fname'),
-                'st_lname' => $this->input->post('st_lname'),
-                'st_phone' => $this->input->post('st_phone'),
-                'st_faname' => $this->input->post('st_faname'),
-                'st_mname' => $this->input->post('st_mname'),
-                'st_queue_num' => $this->input->post('st_queue_num'),
-                'st_enter_time' => $time,
-                'lab_id' => $lab_Id ,
-                
-            );
-            
-            if($this->studentlist_model->insert($postdata))
+            if($pc_id = $this->studentlist_model->getPcId($lab_Id))
             {
-             
-                $row = $this->studentlist_model->getLabName($lab_Id);
+            
+                $this->load->helper('url');
+                
+                $datestring = "%Y-%m-%d %h:%i:%s";
+                $time = time();
+    
+                $time = mdate($datestring, $time);
+                
+                $postdata = array(
                     
-                    foreach ($row->result_array() as $lab_name)
-                    {
-                         echo $lab_name['lab_name'];
-                    }
-            }
-            
-            else
-            {
-                echo "false";
-            }
+                    'st_fname' => $this->input->post('st_fname'),
+                    'st_lname' => $this->input->post('st_lname'),
+                    'st_phone' => $this->input->post('st_phone'),
+                    'st_faname' => $this->input->post('st_faname'),
+                    'st_mname' => $this->input->post('st_mname'),
+                    'st_queue_num' => $this->input->post('st_queue_num'),
+                    'st_enter_time' => $time,
+                    'lab_id' => $lab_Id ,
+                    'pc_id'=>$pc_id,
+                    
+                );
                 
+                if($this->studentlist_model->insert($postdata))
+                {
+                    $this->studentlist_model->setPcAvailFalse($pc_id);
+                    
+                    $pc_name = $this->studentlist_model->getPcName($pc_id);
+                 
+                    $row = $this->studentlist_model->getLabName($lab_Id);
+                        
+                        foreach ($pc_name->result_array() as $name)
+                        {
+                             echo $name['name'];
+                        }
+                }
+           
             
+                else
+                {
+                    echo "false!!";
+                }
+                
+           }
+           else
+            {
+             echo "false!!";
+            } 
           }
           
           else
           {
-             echo "false";
+             echo "false!!";
           }   
         }
     }
     
     
+//    function test()
+//    {   
+//       echo $this->studentlist_model->getLabId();
+//
+//    }
+    
     function update()
     {
     	$id = $_GET['id'];
+        $p_id = $_GET['p_id'];
         if($this->studentlist_model->updateStudent($id)===true)
         {
+            $this->studentlist_model->setPcAvailTrue($p_id);
             echo "Updated Successfully";
         }
         else if($this->studentlist_model->updateStudent($id)==='no affected rows')
@@ -205,18 +226,28 @@ class Join extends CI_Controller {
 		echo $cap;
 	}
     
-        public function arab_alpha($str)
-        {
+    public function arab_alpha($str)
+    {
             
-            return ( ! preg_match('/^([a-z ]|\p{Arabic})+$/iu', $str)) ? FALSE : TRUE;
-            //return ( ! preg_match("/^([a-z])+$/i", $str)) ? FALSE : TRUE;
-        }
+        return ( ! preg_match('/^([a-z ]|\p{Arabic})+$/iu', $str)) ? FALSE : TRUE;
+        //return ( ! preg_match("/^([a-z])+$/i", $str)) ? FALSE : TRUE;
+    }
+    
+    public function pcCheck($id)
+    {
+        $this->studentlist_model->setPcWorkingTrue($id);
+    }
+    
+    
+    public function pcUnCheck($id)
+    {
+        $this->studentlist_model->setPcWorkingFalse($id);
+    }
 
 		
 	function updateNumOfAvailPlaces()
 	{
 		$current = $this->studentlist_model->lastUpdate();
-		//echo $current."\n";
 		$last = isset($_GET['timestamp']) ? $_GET['timestamp'] : 0;
 		while( $current <= $last) {
 			usleep(10000);
