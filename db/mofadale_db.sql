@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Sep 03, 2013 at 10:06 PM
+-- Generation Time: Sep 04, 2013 at 09:54 AM
 -- Server version: 5.5.24-log
 -- PHP Version: 5.3.13
 
@@ -19,6 +19,26 @@ SET time_zone = "+00:00";
 --
 -- Database: `mofadale_db`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `counter`
+--
+
+CREATE TABLE IF NOT EXISTS `counter` (
+  `counter_id` int(11) NOT NULL AUTO_INCREMENT,
+  `counter_value` int(11) NOT NULL,
+  `counter_last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`counter_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=2 ;
+
+--
+-- Dumping data for table `counter`
+--
+
+INSERT INTO `counter` (`counter_id`, `counter_value`, `counter_last_update`) VALUES
+(1, 60, '2013-09-04 06:06:02');
 
 -- --------------------------------------------------------
 
@@ -49,49 +69,49 @@ INSERT INTO `lab` (`lab_id`, `lab_name`, `lab_max_voloum`) VALUES
 
 CREATE TABLE IF NOT EXISTS `pc` (
   `pc_id` int(11) NOT NULL AUTO_INCREMENT,
-  `pc_name` varchar(255) NOT NULL,
+  `pc_name` varchar(255) CHARACTER SET latin1 NOT NULL,
   `pc_availability` tinyint(1) NOT NULL DEFAULT '1',
   `pc_is_working` tinyint(1) NOT NULL DEFAULT '0',
   `lab_id` int(11) NOT NULL,
   PRIMARY KEY (`pc_id`),
   KEY `pc_lab_id` (`lab_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=31 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=31 ;
 
 --
 -- Dumping data for table `pc`
 --
 
 INSERT INTO `pc` (`pc_id`, `pc_name`, `pc_availability`, `pc_is_working`, `lab_id`) VALUES
-(1, 'PC(1)', 1, 0, 1),
-(2, 'PC(2)', 0, 1, 1),
-(3, 'PC(3)', 0, 1, 1),
-(4, 'PC(4)', 0, 1, 1),
-(5, 'PC(5)', 0, 1, 1),
-(6, 'PC(6)', 0, 1, 1),
-(7, 'PC(7)', 1, 0, 1),
-(8, 'PC(8)', 1, 0, 1),
-(9, 'PC(9)', 1, 0, 1),
-(10, 'PC(10)', 1, 0, 1),
-(11, 'PC(11)', 0, 1, 1),
-(12, 'PC(12)', 1, 0, 1),
-(13, 'PC(13)', 1, 0, 1),
-(14, 'PC(14)', 0, 1, 1),
-(15, 'PC(15)', 1, 0, 1),
-(16, 'PC(1)', 0, 1, 2),
-(17, 'PC(2)', 0, 1, 2),
-(18, 'PC(3)', 0, 1, 2),
-(19, 'PC(4)', 0, 1, 2),
-(20, 'PC(5)', 1, 0, 2),
-(21, 'PC(6)', 1, 0, 2),
-(22, 'PC(7)', 1, 0, 2),
-(23, 'PC(8)', 1, 0, 2),
-(24, 'PC(9)', 1, 0, 2),
-(25, 'PC(10)', 1, 0, 2),
-(26, 'PC(11)', 1, 0, 2),
-(27, 'PC(12)', 1, 0, 2),
-(28, 'PC(13)', 1, 0, 2),
-(29, 'PC(14)', 1, 0, 2),
-(30, 'PC(15)', 1, 0, 2);
+(1, 'PC-1', 1, 0, 1),
+(2, 'PC-2', 0, 1, 1),
+(3, 'PC-3', 0, 1, 1),
+(4, 'PC-4', 0, 1, 1),
+(5, 'PC-5', 0, 1, 1),
+(6, 'PC-6', 0, 1, 1),
+(7, 'PC-7', 1, 0, 1),
+(8, 'PC-8', 1, 0, 1),
+(9, 'PC-9', 1, 0, 1),
+(10, 'PC-10', 1, 0, 1),
+(11, 'PC-11', 0, 1, 1),
+(12, 'PC-12', 1, 0, 1),
+(13, 'PC-13', 1, 0, 1),
+(14, 'PC-14', 0, 1, 1),
+(15, 'PC-15', 1, 0, 1),
+(16, 'PC-1', 0, 1, 2),
+(17, 'PC-2', 0, 1, 2),
+(18, 'PC-3', 0, 1, 2),
+(19, 'PC-4', 0, 1, 2),
+(20, 'PC-5', 1, 0, 2),
+(21, 'PC-6', 1, 0, 2),
+(22, 'PC-7', 1, 0, 2),
+(23, 'PC-8', 1, 0, 2),
+(24, 'PC-9', 1, 0, 2),
+(25, 'PC-10', 1, 0, 2),
+(26, 'PC-11', 1, 0, 2),
+(27, 'PC-12', 1, 0, 2),
+(28, 'PC-13', 1, 0, 2),
+(29, 'PC-14', 1, 0, 2),
+(30, 'PC-15', 1, 0, 2);
 
 -- --------------------------------------------------------
 
@@ -114,7 +134,7 @@ CREATE TABLE IF NOT EXISTS `student` (
   PRIMARY KEY (`st_id`),
   KEY `st_lab_id` (`lab_id`),
   KEY `pc_id` (`pc_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=99 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=101 ;
 
 --
 -- Dumping data for table `student`
@@ -154,7 +174,6 @@ INSERT INTO `student` (`st_id`, `st_fname`, `st_lname`, `st_phone`, `st_faname`,
 (84, 'klh', 'kh', 87, 'kjh', 'kjh', 6, '2013-09-03 06:05:13', '2013-09-03 06:14:45', 1, 14),
 (85, 'kjh', 'jkhg', 87, 'kjgk', 'jh', 87, '2013-09-03 06:15:00', '2013-09-03 07:03:07', 1, 2),
 (86, 'jkh', 'jg', 7, 'hjg', 'jg', 8, '2013-09-03 06:15:11', '2013-09-03 07:03:45', 2, 16),
-(87, 'عبد الرحمن', 'المهايني', 941, 'جهاد', 'ندى', 4, '2013-09-03 06:49:57', NULL, 1, 3),
 (88, 'بشر', 'المهايني', 54, 'جهاد', 'ندى', 4, '2013-09-03 06:50:20', NULL, 2, 17),
 (89, 'حازم ', 'المهايني', 58, 'جهاد', 'ندى', 5, '2013-09-03 06:51:24', '2013-09-03 06:58:13', 1, 4),
 (90, 'وسيم', 'المهايني', 547, 'جهاد', 'ندى', 4, '2013-09-03 06:54:22', NULL, 2, 18),
@@ -165,7 +184,9 @@ INSERT INTO `student` (`st_id`, `st_fname`, `st_lname`, `st_phone`, `st_faname`,
 (95, 'جود', 'المهايني', 87, 'محمد', 'هبة', 1, '2013-09-03 07:01:21', NULL, 1, 11),
 (96, 'كرم', 'أبو حرب', 875, 'مجد', 'مونيكا', 4, '2013-09-03 07:01:52', NULL, 1, 14),
 (97, 'هنا', 'أبو حرب', 874, 'مجد', 'مونيكا', 49, '2013-09-03 07:03:30', NULL, 1, 2),
-(98, 'دانيا', 'أبو حرب', 874, 'مجد', 'مونيكا', 16, '2013-09-03 07:04:04', NULL, 2, 16);
+(98, 'دانيا', 'أبو حرب', 874, 'مجد', 'مونيكا', 16, '2013-09-03 07:04:04', NULL, 2, 16),
+(99, 'hg', 'hjg', 64, 'hg', 'hj', 4, '2013-09-04 05:08:45', '2013-09-04 05:09:19', 1, 3),
+(100, 'عبد الرحمن', 'المهايني', 54, 'جهاد', 'ندى', 1, '2013-09-04 05:10:13', NULL, 1, 3);
 
 --
 -- Constraints for dumped tables
