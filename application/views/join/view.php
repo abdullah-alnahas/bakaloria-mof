@@ -13,6 +13,7 @@
         		submit_();
         		//comet();
         		setInterval(comet, 1000);
+                setInterval(comet1, 20000);
         	}
         </script>
         <script type="text/javascript">
@@ -118,6 +119,22 @@
 				.done( function(json) {
 					$('#blank').text(json.available_places);
 					_timestamp  = json.timestamp;
+					//alert('comet succes'+ _timestamp);
+				})
+				.fail(function( jqxhr, textStatus, error ) {
+				  var err = textStatus + ', ' + error;
+				  console.log( "Request Failed: " + err);
+				});
+			}
+		</script>
+        
+        <script type="text/javascript">
+			var _capacity = null;
+			function comet1() {
+				$.getJSON("<?php echo site_url('join/updateNumOfCapacity');?>",{capacity:_capacity})
+				.done( function(json) {
+					$('#total').text(json.cap);
+                    _capacity = json.cap;
 					//alert('comet succes'+ _timestamp);
 				})
 				.fail(function( jqxhr, textStatus, error ) {
@@ -329,6 +346,7 @@
 									<th class="text-center">اسم الأم</th>
 									<th class="text-center">الرقم في الدور</th>
 									<th class="text-center">المخبر</th>
+                                    <th class="text-center">الحاسب</th>
 									<th class="text-center">يريد الخروج؟</th>
 								</tr>
 							</thead>
@@ -342,6 +360,7 @@
 											<td class="text-center" id="m-name"><?php echo $row->st_mname; ?></td>
 											<td class="text-center" id="queue-num"><?php echo $row->st_queue_num; ?></td>
 											<td class="text-center" id="lab"><?php echo $row->lab_name ; ?></td>
+                                            <td class="text-center" id="pc-name"><?php echo $row->pc_name ; ?></td>
 											<td class="text-center"><button class="btn btn-default " id="<?php echo $row->st_id?>" onclick="get_out(<?php echo $row->st_id?>,<?php echo $row->pc_id?>);return true;">انتهى</button></td>
 										</tr>
 									<?php } ?>

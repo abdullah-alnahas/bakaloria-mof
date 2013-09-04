@@ -209,6 +209,17 @@
             }
         }
         
+        public function getpc()
+        {
+            $query = $this->db->query('select lab.lab_name,pc.pc_name,pc.pc_is_working
+                                       from pc inner join lab
+                                       on pc.lab_id = lab.lab_id;');
+                                       
+            return $query;
+                              
+            
+        }
+        
         public function getPcName($id)
         {
             $q = $this->db->query('SELECT pc_name name
@@ -258,18 +269,18 @@
 			$this->db->update('pc',$data);
         }
         
-        
          public function getAllStudent()
             {
                 
                $q = $this->db->query('
-               SELECT st.st_fname, st.st_lname, st.st_enter_time, st.st_id, st.st_faname, st.st_mname, st.st_queue_num, lab.lab_name,st.pc_id 
+               SELECT st.st_fname, st.st_lname, st.st_enter_time, st.st_id, st.st_faname, st.st_mname, st.st_queue_num, lab.lab_name,st.pc_id,
+               pc.pc_name 
                FROM student st
-               inner Join lab
-               on st.lab_id = lab.lab_id
+               inner Join lab 
+               on st.lab_id = lab.lab_id INNER JOIN pc 
+               ON pc.pc_id = st.pc_id
                WHERE ISNULL(st.st_leave_time)
-			   ;
-               ');
+			   ;');
 			   
 		 
                return $q->result();
@@ -462,6 +473,131 @@
 			}
 			return $enter>$leave?$enter:$leave;
 		}
+        
+        
+        function increaseCounter()
+        {
+            $count = 0;
+            
+            $this->db->where('counter_id',1);
+            $q = $this->db->get('counter');
+            
+            if($q->num_rows() > 0)
+            {
+                foreach($q->result_array() as $row)
+                {
+                    $count = $row['counter_value'];
+                }
+            }
+            
+            if($count == 99)
+            {
+                
+                $count = 0;
+                //$this->resetCounter();
+            }
+            
+            $count++;
+            
+            $datestring = "%Y-%m-%d %h:%i:%s";
+            $time = time();
+	
+            $time = mdate($datestring, $time);
+            
+            $data = array(
+               'counter_value' => $count,
+               'counter_last_update'=>$time,
+            );
+            $this->db->where('counter_id',1); 
+            $this->db->update('counter',$data);
+            
+        }
+        
+        function resetCounter()
+        {
+            $datestring = "%Y-%m-%d %h:%i:%s";
+            $time = time();
+	
+            $time = mdate($datestring, $time);
+            
+            $data = array(
+               'counter_value' => 1,
+               'counter_last_update'=>$time,
+            );
+            $this->db->where('counter_id',1); 
+            $this->db->update('counter',$data);
+        }
+        
+        function setCounter($value)
+        {
+            $datestring = "%Y-%m-%d %h:%i:%s";
+            $time = time();
+	
+            $time = mdate($datestring, $time);
+            
+            $data = array(
+               'counter_value' => $value,
+               'counter_last_update'=>$time,
+            );
+            $this->db->where('counter_id',1); 
+            $this->db->update('counter',$data); 
+        }
+        
+        function getCounter()
+        {  
+           $this->db->where('counter_id',1);
+           $q = $this->db->get('counter');
+            
+           if($q->num_rows() > 0)
+           {
+              return $q;
+           } 
+        }
+        
+        function availableAndActivePcCount()
+        {
+            $available_working = 0;
+            
+            $query = $this->db->query('select count(*) count 
+                                       from pc
+                                       where pc.pc_is_working = 1 and pc.pc_availability = 1;');
+                                       
+            if($query->num_rows() > 0)
+            {
+                foreach($query->result_array() as $row)
+                {
+                    $available_working = $row['count'];
+                }
+                return $available_working;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        
+        function workingPcCount()
+        {
+            $working = 0;
+            
+            $query = $this->db->query('select count(*) count 
+                                       from pc
+                                       where pc.pc_is_working = 1;');
+                                       
+            if($query->num_rows() > 0)
+            {
+                foreach($query->result_array() as $row)
+                {
+                    $working = $row['count'];
+                }
+                return $working;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        
 
 	}
     

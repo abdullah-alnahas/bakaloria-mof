@@ -106,10 +106,17 @@ class Join extends CI_Controller {
         }
     }
     
-    
+//    
 //    function test()
 //    {   
-//       echo $this->studentlist_model->getLabId();
+//       if($this->studentlist_model->setCounter($_GET['value']))
+//       {
+//            echo true;
+//       }
+//       else
+//       {
+//            echo false;
+//       }
 //
 //    }
     
@@ -199,22 +206,27 @@ class Join extends CI_Controller {
     
     function moveCounter()
     {
-        if(join::$counter < 100)
+        if(isset(self::$counter))
         {
-            join::$counter++;
+            if(self::$counter < 100)
+            {
+                echo "im here";
+                self::$counter++;
+            }
+            else
+            {
+                self::$counter = 1;
+            }
+            
+            echo self::$counter;
+            
         }
-        else
-        {
-            join::$counter = 1;
-        }
-        
-        echo join::$counter;
     }
     
     function num_available_places()
     {
-        $available = $this->studentlist_model->available_places();
-		$cap = $this->studentlist_model->getCapacityOfLabs();
+        $available = $this->studentlist_model->availableAndActivePcCount();
+		$cap = $this->studentlist_model->workingPcCount();
 		$this->output
 		    ->set_content_type('application/json')
 		    ->set_output(json_encode(array('capacity' => $cap,'available'=>$available)));
@@ -244,6 +256,65 @@ class Join extends CI_Controller {
         $this->studentlist_model->setPcWorkingFalse($id);
     }
 
+    
+    public function inc_Counter()
+    {
+        $this->studentlist_model->increaseCounter();
+    }
+    
+    public function reset_Counter()
+    {
+         $this->studentlist_model->resetCounter();
+    }
+    
+    public function set_Counter()
+    {
+         $this->studentlist_model->setCounter($_GET['value']);
+    }
+    
+    public function get_Counter()
+    {
+       $counter_value = 0;
+       $counter_last_update; 
+        
+       $q = $this->studentlist_model->getCounter();
+       
+       if($q->num_rows()>0)
+       {
+            foreach($q->result_array() as $row)
+            {
+                $counter_value = $row['counter_value'];
+                $counter_last_update = $row['counter_last_update'];
+            }
+            
+             $this->output
+		          ->set_content_type('application/json')
+		          ->set_output(json_encode(array('counter_value' => $counter_value,'counter_last_update'=>$counter_last_update)));
+       } 
+       
+      
+    }
+    
+    function desplay_pc()
+    {
+        $i = 1;
+        
+        $q = $this->studentlist_model->getpc();
+        
+        if($q->num_rows() > 0)
+        {
+            foreach($q->result_array() as $row)
+            {
+                $all_pc[$i] =array('lab'=>$row['lab_name'],'pc_'.$i.'_info'=>array('pc_name'=>$row['pc_name'],'status'=>$row['pc_is_working']));
+                $i++;
+            }
+        }
+        
+        $data['pcs'] = $all_pc;
+        $this->load->view('join/saved',$data);
+    }
+    
+    
 		
 	function updateNumOfAvailPlaces()
 	{
@@ -254,11 +325,25 @@ class Join extends CI_Controller {
 			clearstatcache();
 			$current = $this->studentlist_model->lastUpdate();//this is a bad piece of code!!
 		}
-		$available = $this->studentlist_model->available_places();
+		$available = $this->studentlist_model->availableAndActivePcCount();
 		$timestamp = $current;
 		$this->output
 		    ->set_content_type('application/json')
 		    ->set_output(json_encode(array('available_places' => $available,'timestamp'=>$timestamp)));
+	}
+    
+    function updateNumOfCapacity()
+	{
+		$current = $this->studentlist_model->workingPcCount();
+		$last = isset($_GET['capacity']) ? $_GET['capacity'] : 0;
+		while( $current != $last) {
+			usleep(10000);
+			clearstatcache();
+			$current = $this->studentlist_model->workingPcCount();//this is a bad piece of code!!
+		}
+		$this->output
+		    ->set_content_type('application/json')
+		    ->set_output(json_encode(array('cap' => $current)));
 	}
 		
 }
