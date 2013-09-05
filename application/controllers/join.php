@@ -225,8 +225,8 @@ class Join extends CI_Controller {
     
     function num_available_places()
     {
-        $available = $this->studentlist_model->availableAndActivePcCount();
-		$cap = $this->studentlist_model->workingPcCount();
+        $available = $this->studentlist_model->available_places();
+		$cap = $this->studentlist_model->getCapacityOfLabs();
 		$this->output
 		    ->set_content_type('application/json')
 		    ->set_output(json_encode(array('capacity' => $cap,'available'=>$available)));
@@ -261,6 +261,11 @@ class Join extends CI_Controller {
     {
         $this->studentlist_model->increaseCounter();
     }
+	
+	public function dec_Counter()
+    {
+        $this->studentlist_model->decreaseCounter();
+    }
     
     public function reset_Counter()
     {
@@ -283,38 +288,34 @@ class Join extends CI_Controller {
        {
             foreach($q->result_array() as $row)
             {
-                $counter_value = $row['counter_value'];
-                $counter_last_update = $row['counter_last_update'];
+            	return $row;
+                /*$counter_value = $row['counter_value'];
+                $counter_last_update = $row['counter_last_update'];*/
             }
-            
-             $this->output
+             /*$this->output
 		          ->set_content_type('application/json')
-		          ->set_output(json_encode(array('counter_value' => $counter_value,'counter_last_update'=>$counter_last_update)));
-       } 
-       
-      
+		          ->set_output(json_encode(array('counter_value' => $counter_value,'counter_last_update'=>$counter_last_update)));*/
+       }  
     }
-    
-    function desplay_pc()
-    {
-        $i = 1;
-        
-        $q = $this->studentlist_model->getpc();
-        
-        if($q->num_rows() > 0)
-        {
-            foreach($q->result_array() as $row)
-            {
-                $all_pc[$i] =array('lab'=>$row['lab_name'],'pc_'.$i.'_info'=>array('pc_name'=>$row['pc_name'],'status'=>$row['pc_is_working']));
-                $i++;
-            }
-        }
-        
-        $data['pcs'] = $all_pc;
-        $this->load->view('join/saved',$data);
-    }
-    
-    
+	
+	function syncCounterValue(){
+		$last = isset($_GET['timestamp']) ? $_GET['timestamp'] : 0;
+		$d = $this->get_Counter();
+		$current = $d['counter_last_update'];
+	
+		while( $current <= $last) {
+			usleep(100000);
+			$d = $this->get_Counter();
+			$current = $d['counter_last_update'];
+		}
+		
+		$this->output
+		          ->set_content_type('application/json')
+		          ->set_output(json_encode(array('counterVal' => $d['counter_value'],'timestamp'=>$d['counter_last_update'])));
+	}
+	function counter(){
+		$this->load->view('join/Showcounter');
+	}
 		
 	function updateNumOfAvailPlaces()
 	{
@@ -325,25 +326,11 @@ class Join extends CI_Controller {
 			clearstatcache();
 			$current = $this->studentlist_model->lastUpdate();//this is a bad piece of code!!
 		}
-		$available = $this->studentlist_model->availableAndActivePcCount();
+		$available = $this->studentlist_model->available_places();
 		$timestamp = $current;
 		$this->output
 		    ->set_content_type('application/json')
 		    ->set_output(json_encode(array('available_places' => $available,'timestamp'=>$timestamp)));
-	}
-    
-    function updateNumOfCapacity()
-	{
-		$current = $this->studentlist_model->workingPcCount();
-		$last = isset($_GET['capacity']) ? $_GET['capacity'] : 0;
-		while( $current != $last) {
-			usleep(10000);
-			clearstatcache();
-			$current = $this->studentlist_model->workingPcCount();//this is a bad piece of code!!
-		}
-		$this->output
-		    ->set_content_type('application/json')
-		    ->set_output(json_encode(array('cap' => $current)));
 	}
 		
 }

@@ -5,15 +5,15 @@
 		<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
 		<link href="<?php echo base_url();?>dist/modifications.css" rel="stylesheet" media="screen">
 		<link href="<?php echo base_url();?>dist/css/bootstrap.css" rel="stylesheet" media="screen">
+		<link href="<?php echo base_url();?>dist/css/bootstrap-glyphicons.css" rel="stylesheet" media="screen">
         <script type="text/javascript" src="<?php echo base_url();?>dist/jquery-1.10.2.js" ></script>
         <script type="text/javascript" src="<?php echo base_url();?>dist/js/bootstrap.js" ></script>
         <script type="text/javascript">
         	window.onload = function(){
         		getNumOfAvailPlaces();
         		submit_();
-        		//comet();
         		setInterval(comet, 1000);
-                setInterval(comet1, 20000);
+        		setInterval(comet2, 1000);
         	}
         </script>
         <script type="text/javascript">
@@ -119,7 +119,6 @@
 				.done( function(json) {
 					$('#blank').text(json.available_places);
 					_timestamp  = json.timestamp;
-					//alert('comet succes'+ _timestamp);
 				})
 				.fail(function( jqxhr, textStatus, error ) {
 				  var err = textStatus + ', ' + error;
@@ -127,15 +126,21 @@
 				});
 			}
 		</script>
-        
-        <script type="text/javascript">
-			var _capacity = null;
-			function comet1() {
-				$.getJSON("<?php echo site_url('join/updateNumOfCapacity');?>",{capacity:_capacity})
+		<script type="text/javascript">
+			function inc_count(){
+				$.get('<?php echo site_url('join/inc_Counter');?>');
+			}
+			function dec_count(){
+				$.get('<?php echo site_url('join/dec_Counter');?>');
+			}
+		</script>
+		<script type="text/javascript">
+			var _timestamp2 = null;
+			function comet2() {
+				$.getJSON("<?php echo site_url('join/syncCounterValue');?>",{timestamp:_timestamp2})
 				.done( function(json) {
-					$('#total').text(json.cap);
-                    _capacity = json.cap;
-					//alert('comet succes'+ _timestamp);
+					_timestamp2  = json.timestamp;
+					$('#countr').text(json.counterVal);
 				})
 				.fail(function( jqxhr, textStatus, error ) {
 				  var err = textStatus + ', ' + error;
@@ -153,10 +158,13 @@
 	
 		<ul class="nav nav-pills nav-justified navbar-fixed-top transparent well" id="tabs" data-tabs="tabs">
 			<li class="active " >
-				<a data-toggle="tab" href="#add">إضافة طالب</a>
+				<a data-toggle="tab" href="<?php echo site_url();?>/join/index/#add">إضافة طالب</a>
 			</li>
 			<li class="">
-				<a data-toggle="tab" href="<?php echo base_url();?>join/view/#inside">عرض الطلاب الموجودين</a>
+				<a data-toggle="tab" href="<?php echo site_url();?>/join/index/#inside">عرض الطلاب الموجودين</a>
+			</li>
+			<li class="">
+				<a data-toggle="tab" href="<?php echo site_url();?>/join/index/#pc">حالة الحواسب</a>
 			</li>
 		</ul>
 		<div class="tab-content">
@@ -300,18 +308,21 @@
 				<div class="panel panel-primary col-lg-8 col-lg-offset-2">
 					<!--<div class="panel-heading">Panel heading without title</div>-->
 					<div class="panel-body">
+						<center>
+							<span class="badge" style="background-color:#428bca; "><font face="" size="3" color="white">عدد الأماكن المتبقية</font></span>
+						</center><br />
 						<div class="row">
 							<div class="col-lg-4"></div>
 							<div class="col-lg-4">
 								<center>
-									<span class="badge" style="background-color:#428bca; "><font face="" size="3" color="white">عدد الأماكن المتبقية</font></span>
 									<span class="badge" id="blank">0</span>
 									<span>من أصل</span>
 									<span class="badge" id="total">0</span>
 								</center>
 							</div>
 							<div class="col-lg-4"></div>
-						</div><br />
+						</div>
+						
 						<!--<div class="row">
 							<div class="col-lg-3"></div>
 							<div class="col-lg-6">
@@ -330,6 +341,28 @@
 						</div>-->
 					</div>
 				</div>
+				<div class="panel panel-primary col-lg-8 col-lg-offset-2">
+					<!--<div class="panel-heading">Panel heading without title</div>-->
+					<div class="panel-body">
+					<center>
+						<span class="badge" style="background-color:#428bca;vertical-align: middle; "><font face="" size="3" color="white">العداد</font></span>
+					</center>
+						<div class="row">
+							<div class="col-lg-4"></div>
+							<div class="col-lg-4">
+								
+							<center>
+								<span title="-1" onclick="dec_count();" style="font-size: 25px;" class="btn glyphicon glyphicon-minus-sign"></span>
+								<span class="badge" id="countr" style="border-radius: 11% 50%;vertical-align: middle;font-size: 18px">0</span>
+								<span title="+1" onclick="inc_count();" style="font-size: 25px;" class="btn glyphicon glyphicon-plus-sign"></span>
+								
+							</center>
+						
+							</div>
+							<div class="col-lg-4"></div>
+						</div>
+						</div>
+						</div>
 			</div>
 			<div class="tab-pane fade in" id="inside">
 				<!-- jumbotron -->
@@ -346,7 +379,7 @@
 									<th class="text-center">اسم الأم</th>
 									<th class="text-center">الرقم في الدور</th>
 									<th class="text-center">المخبر</th>
-                                    <th class="text-center">الحاسب</th>
+									<th class="text-center">الحاسب</th>
 									<th class="text-center">يريد الخروج؟</th>
 								</tr>
 							</thead>
@@ -360,7 +393,7 @@
 											<td class="text-center" id="m-name"><?php echo $row->st_mname; ?></td>
 											<td class="text-center" id="queue-num"><?php echo $row->st_queue_num; ?></td>
 											<td class="text-center" id="lab"><?php echo $row->lab_name ; ?></td>
-                                            <td class="text-center" id="pc-name"><?php echo $row->pc_name ; ?></td>
+											<td class="text-center" id="pc-name"><?php echo $row->pc_name; ?></td>
 											<td class="text-center"><button class="btn btn-default " id="<?php echo $row->st_id?>" onclick="get_out(<?php echo $row->st_id?>,<?php echo $row->pc_id?>);return true;">انتهى</button></td>
 										</tr>
 									<?php } ?>
@@ -368,6 +401,26 @@
 							</tbody>
 						</table>
 					</div>
+				</div>
+			</div>
+			<div class="tab-pane fade in" id="pc">
+				<div class="panel-group" id="accordion">
+					<?php
+						echo '<div class="panel panel-default">
+							    <div class="panel-heading">
+							      <h4 class="panel-title">
+							        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+							          Collapsible Group Item #1
+							        </a>
+							      </h4>
+							    </div>
+							    <div id="collapseOne" class="panel-collapse collapse in">
+							      <div class="panel-body">
+							        Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven\'t heard of them accusamus labore sustainable VHS.
+						      </div>
+						    </div>
+						  </div>';
+					?>
 				</div>
 			</div>
 		</div>
