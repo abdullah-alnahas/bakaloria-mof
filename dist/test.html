@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Test Json Parser</title>
+		<script type="text/javascript" src="jquery-1.10.2.js"></script>
+		<script type="text/javascript">
+			JSON = '{"result":true , "value":"Hello Json"}';
+			Object = $.parseJSON(JSON);
+			alert(Object.value);
+		</script>
+	</head>
+	<body>
+		<div id="test"></div>
+	</body>
+</html>

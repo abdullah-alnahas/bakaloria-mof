@@ -5,15 +5,31 @@
 		<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
 		<link href="<?php echo base_url();?>dist/modifications.css" rel="stylesheet" media="screen">
 		<link href="<?php echo base_url();?>dist/css/bootstrap.css" rel="stylesheet" media="screen">
+		<link href="<?php echo base_url();?>dist/animate.css" rel="stylesheet" media="screen">
 		<link href="<?php echo base_url();?>dist/css/bootstrap-glyphicons.css" rel="stylesheet" media="screen">
         <script type="text/javascript" src="<?php echo base_url();?>dist/jquery-1.10.2.js" ></script>
         <script type="text/javascript" src="<?php echo base_url();?>dist/js/bootstrap.js" ></script>
         <script type="text/javascript">
         	window.onload = function(){
-        		getNumOfAvailPlaces();
+        		setInterval(getNumOfAvailPlaces,5000);
         		submit_();
         		setInterval(comet, 1000);
         		setInterval(comet2, 1000);
+        		$('.collapse').collapse('hide');
+        	}
+        </script>
+        <script type="text/javascript">
+        	function stateChanged(id_,val,statusId){
+        		$.get("<?php echo site_url('join/pcChangeIsWorkingState');?>", { id: statusId ,isChecked: val} )
+				.done(function(data) {
+						if(val==1){
+  							$('#'+statusId).text('يعمل');
+  						}else{
+  							$('#'+statusId).text('لا يعمل');
+  						}												
+				}).fail(function() {
+					alert('Failed to update');
+				});
         	}
         </script>
         <script type="text/javascript">
@@ -25,12 +41,15 @@
 						url: form.attr('action'),
 						data: form.serialize()
 					}).done(function(data) {
+						
 						if(data.length<=6){
 							alert('تمّت إضافة البيانات بنجاح\n رجاء اذهب إلى القاعة: '+data);
 							$('#confirm_info').modal('hide');							
-						}else if(data=='false!!'){
+						}else if(data=='false1'){
 							alert('عذراً.. \n جميع القاعات ممتلئة الآن، يرجى الانتظار ريثما يتاح المجال لدخولك.');
 							$('#confirm_info').modal('hide');
+						}else if(data=='false2'){
+						}else if(data=='false3'){
 						}else{
 							alert('خطأ بالبيانات المدخلة.. يرجى التأكد من مطابقة الدخل مع الحقول');
 							$('#confirm_info').modal('hide');
@@ -148,11 +167,30 @@
 				});
 			}
 		</script>
-		<!--<script type="text/javascript">
-			$(fucntoin(){
-				setTimeout
-			});
-		</script>-->
+		<script type="text/javascript">
+			function addAnimate(){
+				$('#testanim').addClass('animated tada');
+				setTimeout(removeAnimate,2000);
+			}
+			
+		</script>
+		<script type="text/javascript">
+			function removeAnimate(){
+				$('#testanim').removeClass('animated tada');
+			}
+			
+		</script>
+		<script type="text/javascript">
+			function changeIcon(elem){
+				if($('#'+elem).hasClass('glyphicon-chevron-right')){
+					$('#'+elem).removeClass('glyphicon-chevron-right');
+					$('#'+elem).addClass('glyphicon-chevron-down');
+				}else{
+					$('#'+elem).removeClass('glyphicon-chevron-down');
+					$('#'+elem).addClass('glyphicon-chevron-right');
+				}
+			}
+		</script>
 	</head>
 	<body>
 	
@@ -404,26 +442,58 @@
 				</div>
 			</div>
 			<div class="tab-pane fade in" id="pc">
-				<div class="panel-group" id="accordion">
-					<?php
-						echo '<div class="panel panel-default">
-							    <div class="panel-heading">
-							      <h4 class="panel-title">
-							        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
-							          Collapsible Group Item #1
-							        </a>
-							      </h4>
-							    </div>
-							    <div id="collapseOne" class="panel-collapse collapse in">
-							      <div class="panel-body">
-							        Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven\'t heard of them accusamus labore sustainable VHS.
-						      </div>
+				<?php
+		$last=null;
+		echo '<div class="panel-group" id="accordion">';
+		for ($i=0; $i <sizeof($pcs) ; $i++) {
+			if($pcs[$i]['lab_name']!=$last){
+				//echo'<script type="text/javascript">alert("'.$pcs[$i]['lab_name'].'");</script>';
+				if($i!==0){
+            	echo '</tbody></table>';
+				echo '</div></div></div>';
+				}
+				if($i!==sizeof($pcs)-1){
+						echo 
+						 '<div class="panel panel-default">
+						    <div class="panel-heading">
+						      <h4 class="panel-title text-center">
+						        <a id="chevron'.$pcs[$i]['lab_name'].'" class="glyphicon glyphicon-chevron-right btn btn-default accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#'.$pcs[$i]['lab_name'].'" onclick="changeIcon(this.id);">
+						          '.$pcs[$i]['lab_name'].'
+						        </a>
+						      </h4>
 						    </div>
-						  </div>';
-					?>
-				</div>
+						    <div id="'.$pcs[$i]['lab_name'].'" class="panel-collapse collapse in">
+						      <div class="panel-body">';
+				echo '<table class="table table-bordered table-hover text-center"><thead class="panel-heading"><tr><th class="text-center">رقم الحاسوب</th><th class="text-center">الحالة</th><th>تغيير الحالة</th></tr><thead><tbody>';
+				}
+			
+			}
+			if($pcs[$i]['pc_is_working']==0){
+				$status = 'لا يعمل';
+				$checked = FALSE;
+			}else{
+				$status = 'يعمل';
+				$checked = TRUE;
+			}
+			echo
+				 '<tr>'
+				. '<td>'. $pcs[$i]['pc_name'] . '</td>'
+				. '<td id="'.$pcs[$i]['pc_id'].'">'.$status . '</td>'
+				. '<td><input  id="s'.$pcs[$i]['pc_id'].'" type="checkbox" class="checkbox" onclick="stateChanged(this.id,this.checked ? 1 : 0,'.$pcs[$i]['pc_id'].');" /></td>'
+				.'</tr>';
+				if($checked){
+					echo
+				'<script type="text/javascript">
+					$(\'#s'.$pcs[$i]['pc_id'].'\').attr(\'checked\',\'checked\');
+				</script>'
+				;
+				}
+			$last = $pcs[$i]['lab_name'];
+        }
+		echo '</div>';
+    ?>
 			</div>
-		</div>
+			</div>
 		
 	</body>
   

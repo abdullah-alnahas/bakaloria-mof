@@ -209,13 +209,13 @@
             }
         }
         
-        public function getpc($id)
+        public function getpc()
         {
-            $query = $this->db->query('select pc.pc_id,pc.pc_name,lab.lab_name
+            $query = $this->db->query('select pc.pc_id,pc.pc_name,lab.lab_name,pc.pc_is_working,pc.pc_availability
                                        from pc inner join lab
                                        on pc.lab_id = lab.lab_id;');
-                              
-            
+            $res = $query->result_array();
+            return $res;
         }
         
         public function getPcName($id)
@@ -247,10 +247,10 @@
 			$this->db->update('pc',$data);
         }
         
-        public function setPcWorkingTrue($id)
+        public function setPcIsWorkingState($id,$value)
         {
             $data = array(
-               'pc_is_working' => 1,
+               'pc_is_working' => $value,
             );
             
             $this->db->where('pc_id',$id);
@@ -554,7 +554,50 @@
             $this->db->where('counter_id',1); 
             $this->db->update('counter',$data);
         }
+        function availableAndActivePcCount()
+        {
+            $available_working = 0;
+            
+            $query = $this->db->query('select count(*) count 
+                                       from pc
+                                       where pc.pc_is_working = 1 and pc.pc_availability = 1;');
+                                       
+            if($query->num_rows() > 0)
+            {
+                foreach($query->result_array() as $row)
+                {
+                    $available_working = $row['count'];
+                }
+                return $available_working;
+            }
+            else
+            {
+                return false;
+            }
+        }
         
+        function workingPcCount()
+        {
+            $working = 0;
+            
+            $query = $this->db->query('select count(*) count 
+                                       from pc
+                                       where pc.pc_is_working = 1;');
+                                       
+            if($query->num_rows() > 0)
+            {
+                foreach($query->result_array() as $row)
+                {
+                    $working = $row['count'];
+                }
+                return $working;
+            }
+            else
+            {
+                return false;
+            }
+        }
+		
         function setCounter($value)
         {
             $datestring = "%Y-%m-%d %h:%i:%s";
