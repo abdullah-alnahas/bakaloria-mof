@@ -391,7 +391,7 @@
 								
 							<center>
 								<span title="-1" onclick="dec_count();" style="font-size: 25px;" class="btn glyphicon glyphicon-minus-sign"></span>
-								<span class="badge" id="countr" style="border-radius: 11% 50%;vertical-align: middle;font-size: 18px">0</span>
+								<span class="badge"  style="border-radius: 11% 50%;vertical-align: middle;font-size: 18px"><a title="عرض العداد بملء الشاشة" style="color: #fff;text-decoration: none;" id="countr" href="<?php echo site_url('join/counter');?>">0</a></span>
 								<span title="+1" onclick="inc_count();" style="font-size: 25px;" class="btn glyphicon glyphicon-plus-sign"></span>
 								
 							</center>
